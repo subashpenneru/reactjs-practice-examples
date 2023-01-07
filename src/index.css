@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.header a,
+.header .logo {
+  @apply rounded-md border border-solid border-transparent focus:outline-none focus-within:outline-none focus:border-white focus:shadow-lg;
+}
