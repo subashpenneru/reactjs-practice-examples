@@ -1,11 +1,12 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
-import React, { Fragment, useEffect, useState } from 'react';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import React, { useEffect, useState } from 'react';
 
 import { getComments } from '../api';
 import CommentsItem from '../components/CommentsItem';
 
 const PrefetchComments = () => {
   const [comments, setComments] = useState([]);
+  const queryClient = useQueryClient();
 
   const {
     data,
@@ -15,7 +16,7 @@ const PrefetchComments = () => {
     isFetchingNextPage,
     status,
   } = useInfiniteQuery({
-    queryKey: ['comments'],
+    queryKey: ['comments-prefetch'],
     queryFn: getComments,
     getNextPageParam: ({ nextPage }) => nextPage,
   });
@@ -32,6 +33,17 @@ const PrefetchComments = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
+
+  useEffect(() => {
+    return () => {
+      queryClient.setQueryData(['comments-prefetch'], (data) => {
+        const result = Object.assign({}, data);
+        result.pages.pop();
+        result.pageParams.pop();
+        return result;
+      });
+    };
+  }, []);
 
   useEffect(() => {
     if (comments.length) {
